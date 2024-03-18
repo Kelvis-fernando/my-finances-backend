@@ -22,8 +22,31 @@ class WageView(APIView):
             return Response(serializer.data)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
-    
+
+class WageDetailsView(APIView):
+    def get(self, request, pk):
+        try:
+            wage = Wage.objects.get(pk=pk)
+        except Wage.DoesNotExist:
+             return Response({"Error": "Does not exist"}, status=status.HTTP_404_NOT_FOUND)
+         
+        serializer = WageSerializer(wage)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        try:
+            wage = Wage.objects.get(pk=pk)
+        except Wage.DoesNotExist:
+             return Response({"Error": "Does not exist"}, status=status.HTTP_404_NOT_FOUND)
+         
+        serializer = WageSerializer(wage, data=request.data)
+        
+        if  serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class SpendingView(APIView):
     def get(self, request):
         spendings = Spending.objects.all()
