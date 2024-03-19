@@ -10,7 +10,7 @@ class Wage(models.Model):
 class Spending(models.Model):
     title = models.TextField(max_length=60)
     description = models.TextField(max_length=160)
-    amount = models.BooleanField()
+    amount = models.FloatField()
     is_paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     
