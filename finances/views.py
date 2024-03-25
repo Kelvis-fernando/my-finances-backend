@@ -4,6 +4,9 @@ from .serializers import WageSerializer, SpendingsSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
+from django.db.models import Sum
+from django.utils.timezone import now
+from datetime import timedelta
 
 class WageView(APIView):
     def get(self, request):
@@ -94,3 +97,12 @@ class SpendingDetailsView(APIView):
         
         spending.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class MetricsPerMonthView(APIView):
+    def get(self, request):
+        current_month = now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        first_day_of_month = current_month
+        last_day_of_month = current_month.replace(month=current_month.month % 12 + 1, day=1) - timedelta(days=1)
+        total_spending = Spending.objects.filter(created_at__range=[first_day_of_month, last_day_of_month]).aggregate(total=Sum('amount'))['total'] or 0
+
+        return Response({ 'current_month': current_month, 'total_spending': total_spending})
